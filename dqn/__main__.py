@@ -1,11 +1,11 @@
 import argparse
-from dqn.config import env_agent_map
-from dqn.env.cartpole.utils import load_model
+from dqn.config import agent_map
+from dqn.agents.cartpole.utils import load_model
 
 
 def run(args: argparse.Namespace):
     print(args)
-    agent = env_agent_map[args.env]()
+    agent = agent_map[args.agent]()
     if args.mode == "train":
         agent.train()
     elif args.mode == "evaluate":
@@ -17,9 +17,9 @@ def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--env",
+        "--agent",
         type=str,
-        help="The Atari game evironment.",
+        help="The Atari Game.",
         choices=["cartpole", "pong"],
         required=True,
     )
