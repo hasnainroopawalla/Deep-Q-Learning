@@ -10,10 +10,7 @@ def run(args: argparse.Namespace):
         agent.train()
     elif args.mode == "evaluate":
         dqn = load_model()
-        mean_return = agent.evaluate(
-            render=True ,
-            verbose=True
-        )
+        mean_return = agent.evaluate(render=True, verbose=True)
 
 
 def get_args() -> argparse.Namespace:
