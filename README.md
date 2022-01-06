@@ -1,1 +1,1 @@
-# RL-Pong-DQN
+# Deep Q-Learning (Reinforcement Learning)
