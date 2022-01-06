@@ -3,3 +3,4 @@ matplotlib
 gym[atari]
 pyglet
 torch
+hydra
