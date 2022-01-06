@@ -1,10 +1,19 @@
 import argparse
-from dqn.config import env_map
+from dqn.config import env_agent_map
+from dqn.env.cartpole.utils import load_model
 
 
 def run(args: argparse.Namespace):
-    env = env_map[args.env]
-    print(env)
+    print(args)
+    agent = env_agent_map[args.env]()
+    if args.mode == "train":
+        agent.train()
+    elif args.mode == "evaluate":
+        dqn = load_model()
+        mean_return = agent.evaluate(
+            render=True ,
+            verbose=True
+        )
 
 
 def get_args() -> argparse.Namespace:
@@ -25,22 +34,6 @@ def get_args() -> argparse.Namespace:
         choices=["train", "evaluate"],
         required=True,
     )
-
-    # parser.add_argument(
-    #     "--evaluate_freq",
-    #     type=int,
-    #     default=25,
-    #     help="How often to run evaluation.",
-    #     nargs="?",
-    # )
-
-    # parser.add_argument(
-    #     "--evaluation_episodes",
-    #     type=int,
-    #     default=5,
-    #     help="Number of evaluation episodes.",
-    #     nargs="?",
-    # )
 
     return parser.parse_args()
 
