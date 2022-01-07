@@ -11,5 +11,9 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self) -> None:
+    def evaluate(self, render: bool = False) -> None:
+        pass
+
+    @abstractmethod
+    def simulate(self):
         pass

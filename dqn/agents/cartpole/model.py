@@ -32,7 +32,7 @@ class DQN(nn.Module):
         x = self.fc2(x)
         return x
 
-    def act(self, observation, exploit=False):
+    def act(self, observation):
         """Selects an action with an epsilon-greedy exploration strategy."""
         # TODO: Implement action selection using the Deep Q-network. This function
         #       takes an observation tensor and should return a tensor of actions.

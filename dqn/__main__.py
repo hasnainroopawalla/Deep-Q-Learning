@@ -1,16 +1,13 @@
 import argparse
 from dqn.config import agent_map
-from dqn.agents.cartpole.utils import load_model
 
 
-def run(args: argparse.Namespace):
-    print(args)
-    agent = agent_map[args.agent]()
+def run(args: argparse.Namespace) -> None:
+    agent = agent_map[args.agent]
     if args.mode == "train":
         agent.train()
-    elif args.mode == "evaluate":
-        dqn = load_model()
-        mean_return = agent.evaluate(render=True, verbose=True)
+    elif args.mode == "simulate":
+        agent.simulate()
 
 
 def get_args() -> argparse.Namespace:
@@ -27,8 +24,8 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--mode",
         type=str,
-        help="Train or Evaluate (render) the RL agent.",
-        choices=["train", "evaluate"],
+        help="Train or Simulate (render) the RL agent.",
+        choices=["train", "simulate"],
         required=True,
     )
 

@@ -10,5 +10,5 @@ def preprocess(obs):
     return torch.tensor(obs, device=device).float()
 
 
-def load_model():
-    return torch.load(CartPoleConfig().model_path, map_location=torch.device("cpu"))
+# def load_model():
+#     return
