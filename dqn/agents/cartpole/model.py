@@ -11,7 +11,6 @@ class DQN(nn.Module):
     def __init__(self, cfg: CartPoleConfig):
         super(DQN, self).__init__()
 
-        # Save hyperparameters needed in the DQN class.
         self.batch_size = cfg.train.batch_size
         self.gamma = cfg.train.gamma
         self.eps_start = cfg.train.eps_start

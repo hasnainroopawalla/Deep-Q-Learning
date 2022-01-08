@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 
 from dqn.agents.cartpole.model import DQN
-from dqn.replay_memory import ReplayMemory
+from dqn.replay_memory import ReplayMemory, Sample
 from dqn.agents.cartpole.config import CartPoleConfig
 from dqn.agents.base_agent import BaseAgent
 from dqn.agents.cartpole.utils import preprocess
@@ -29,7 +29,7 @@ class CartPoleAgent(BaseAgent):
 
     def train(self) -> None:
         # Keep track of best evaluation mean return achieved so far.
-        best_mean_return = -float("Inf")
+        best_mean_return = float("-inf")
 
         for episode in range(self.cfg.train.episodes):
             done = False
@@ -46,7 +46,8 @@ class CartPoleAgent(BaseAgent):
                 next_obs = preprocess(next_obs)
 
                 # Add the transition to the replay memory.
-                self.memory.push(obs, action, next_obs, reward, done)
+                sample = Sample(obs, action, next_obs, reward, done)
+                self.memory.push(sample)
 
                 # Optimize the DQN every cfg.train.frequency steps.
                 if steps % self.cfg.train.frequency == 0:
@@ -91,12 +92,12 @@ class CartPoleAgent(BaseAgent):
         #       Note that special care is needed for terminal transitions!
 
         # Sample a batch from the replay memory
-        sample = self.memory.sample(self.dqn.batch_size)
-        obs = torch.stack(sample.obs)
-        next_obs = torch.stack(sample.next_obs)
-        actions = torch.Tensor(sample.actions).long().unsqueeze(1)
-        rewards = torch.Tensor(sample.rewards).long().unsqueeze(1)
-        dones = torch.Tensor(sample.dones).long().unsqueeze(1)
+        batch = self.memory.sample(self.dqn.batch_size)
+        obs = torch.stack(batch.obs)
+        next_obs = torch.stack(batch.next_obs)
+        actions = torch.Tensor(batch.actions).long().unsqueeze(1)
+        rewards = torch.Tensor(batch.rewards).long().unsqueeze(1)
+        dones = torch.Tensor(batch.dones).long().unsqueeze(1)
 
         # TODO: Compute the current estimates of the Q-values for each state-action
         #       pair (s,a). Here, torch.gather() is useful for selecting the Q-values
