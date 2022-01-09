@@ -5,16 +5,10 @@ from torch import Tensor
 
 
 @dataclass
-class SampleBatch:
-    obs: List[Tensor] = field(default_factory=list)
-    actions: List[int] = field(default_factory=list)
-    next_obs: List[Tensor] = field(default_factory=list)
-    rewards: List[float] = field(default_factory=list)
-    dones: List[bool] = field(default_factory=list)
-
-
-@dataclass
 class Sample:
+    """A sample class stored in the replay memory.
+    """
+
     obs: Tensor
     action: int
     next_obs: Tensor
@@ -22,28 +16,51 @@ class Sample:
     done: bool
 
 
-class ReplayMemory:
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.memory = []
-        self.position = 0
+@dataclass
+class Batch:
+    """A batch sampled from the replay memory.
+    """
 
-    def __len__(self):
-        return len(self.memory)
+    obs: List[Tensor] = field(default_factory=list)
+    actions: List[int] = field(default_factory=list)
+    next_obs: List[Tensor] = field(default_factory=list)
+    rewards: List[float] = field(default_factory=list)
+    dones: List[bool] = field(default_factory=list)
+
+
+class ReplayMemory:
+    def __init__(self, capacity: int):
+        """Initialize the Replay Memory.
+
+        Args:
+            capacity (int): The maximum size of the buffer determined by config.memory_size.
+        """
+        self.capacity = capacity
+        self.memory: List[Sample] = []
 
     def push(self, sample: Sample):
-        if len(self.memory) < self.capacity:
-            self.memory.append(None)
+        """Adds a sample to the memory.
 
-        self.memory[self.position] = sample
-        self.position = (self.position + 1) % self.capacity
+        Args:
+            sample (Sample): The sample (observation, action, next observation, reward and a flag if the episode is done or not) to be added to the memory.
 
-    def sample(self, batch_size: int) -> SampleBatch:
+        Raises:
+            OverflowError: This error is raised if the maximum size of the Replay Memory is exceeded.
         """
-        Samples batch_size transitions from the replay memory and returns a tuple
-            (obs torch.Tensor, action, next_obs, reward)
+        if len(self.memory) > self.capacity:
+            raise OverflowError(f"Max Replay Memory size exceeded {self.capacity}")
+        self.memory.append(sample)
+
+    def sample(self, batch_size: int) -> Batch:
+        """Creates a batch of random samples from the memory.
+
+        Args:
+            batch_size (int): The number of samples in each batch.
+
+        Returns:
+            Batch: A batch of samples from the memory.
         """
-        batch = SampleBatch()
+        batch = Batch()
         for sample in random.sample(self.memory, batch_size):
             batch.obs.append(sample.obs)
             batch.actions.append(sample.action)
