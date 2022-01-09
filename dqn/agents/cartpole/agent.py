@@ -9,19 +9,21 @@ from dqn.agents.cartpole.config import CartPoleConfig
 from dqn.agents.base_agent import BaseAgent
 from dqn.agents.cartpole.utils import preprocess
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 class CartPoleAgent(BaseAgent):
+    """The CartPole agent.
+    """
+
     def __init__(self) -> None:
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # Initialize the agent configuration.
         self.cfg = CartPoleConfig()
         # Initialize the gym environment.
         self.env = gym.make(self.cfg.env)
         # Initialize the candidate deep Q-network.
-        self.dqn = DQN(cfg=self.cfg).to(device)
+        self.dqn = DQN(cfg=self.cfg).to(self.device)
         # Initialize target deep Q-network.
-        self.target_dqn = DQN(cfg=self.cfg).to(device)
+        self.target_dqn = DQN(cfg=self.cfg).to(self.device)
         # Create the replay memory.
         self.memory = ReplayMemory(self.cfg.train.memory_size)
         # Initialize optimizer used for training the DQN.
@@ -81,17 +83,11 @@ class CartPoleAgent(BaseAgent):
         self.env.close()
 
     def optimize(self):
-        """This function samples a batch from the replay buffer and optimizes the Q-network."""
-        # Check if enough transitions are available before optimizing.
+        # Check if enough transitions are availabl in the replay buffer before optimizing.
         if len(self.memory) < self.dqn.batch_size:
             return
 
-        # TODO: Sample a batch from the replay memory and concatenate so that there are
-        #       four tensors in total: observations, actions, next observations and rewards.
-        #       Remember to move them to GPU if it is available, e.g., by using Tensor.to(device).
-        #       Note that special care is needed for terminal transitions!
-
-        # Sample a batch from the replay memory
+        # Sample a batch from the replay memory.
         batch = self.memory.sample(self.dqn.batch_size)
         obs = torch.stack(batch.obs)
         next_obs = torch.stack(batch.next_obs)
@@ -106,20 +102,19 @@ class CartPoleAgent(BaseAgent):
 
         next_q_values = self.target_dqn(next_obs).detach().max(1)[0].unsqueeze(1)
 
-        # TODO: Compute the Q-value targets. Only do this for non-terminal transitions!
+        # Compute the Q-value targets ONLY for non-terminal transitions
+        # If it is a terminal transition, (1 - dones) will evaluate to 0.
         q_value_targets = rewards + (self.dqn.gamma * next_q_values * (1 - dones))
 
         loss = F.mse_loss(q_values_expected, q_value_targets)
 
-        # Perform gradient descent.
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
         return loss.item()
 
-    def evaluate(self, render=False):
-        """Runs {n_episodes} episodes to evaluate current policy."""
+    def evaluate(self, render: bool = False) -> float:
         total_return = 0
         for i in range(self.cfg.evaluate.episodes):
             obs = preprocess(self.env.reset()).unsqueeze(0)
@@ -142,8 +137,8 @@ class CartPoleAgent(BaseAgent):
 
         return total_return / self.cfg.evaluate.episodes
 
-    def simulate(self):
-        self.dqn = torch.load(self.cfg.model_path, map_location=device)
+    def simulate(self) -> None:
+        self.dqn = torch.load(self.cfg.model_path, map_location=self.device)
         self.cfg.evaluate.episodes = 1
         mean_return = self.evaluate(render=True)
         print(f"Simulation Complete. Mean Return: {mean_return}")

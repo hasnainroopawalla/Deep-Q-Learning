@@ -14,7 +14,7 @@ class TrainParams:
     eps_start: float = 0.1
     eps_end: float = 0.05
     anneal_length: int = 10 ** 4
-    n_actions: int = 2
+    num_actions: int = 2
 
 
 @dataclass

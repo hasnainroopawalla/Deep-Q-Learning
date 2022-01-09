@@ -6,7 +6,7 @@ from torch import Tensor
 
 @dataclass
 class Sample:
-    """A sample class stored in the replay memory.
+    """A sample that is stored in the replay memory.
     """
 
     obs: Tensor
@@ -18,7 +18,7 @@ class Sample:
 
 @dataclass
 class Batch:
-    """A batch sampled from the replay memory.
+    """A batch that is sampled from the replay memory.
     """
 
     obs: List[Tensor] = field(default_factory=list)
@@ -37,6 +37,14 @@ class ReplayMemory:
         """
         self.capacity = capacity
         self.memory: List[Sample] = []
+
+    def __len__(self) -> int:
+        """Returns the length of the replay memory.
+
+        Returns:
+            int: Length of the replay memory.
+        """
+        return len(self.memory)
 
     def push(self, sample: Sample):
         """Adds a sample to the memory.

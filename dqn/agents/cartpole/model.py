@@ -16,10 +16,10 @@ class DQN(nn.Module):
         self.eps_start = cfg.train.eps_start
         self.eps_end = cfg.train.eps_end
         self.anneal_length = cfg.train.anneal_length
-        self.n_actions = cfg.train.n_actions
+        self.num_actions = cfg.train.num_actions
 
         self.fc1 = nn.Linear(4, 256)
-        self.fc2 = nn.Linear(256, self.n_actions)
+        self.fc2 = nn.Linear(256, self.num_actions)
 
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
@@ -40,7 +40,7 @@ class DQN(nn.Module):
         # TODO: Implement epsilon-greedy exploration.
         prediction = self(observation.squeeze())
         if np.random.uniform(low=0.0, high=1.0) <= self.eps_start:
-            action = np.random.randint(low=0.0, high=self.n_actions)  # Random action
+            action = np.random.randint(low=0.0, high=self.num_actions)  # Random action
         else:
             action = torch.argmax(prediction).item()
         return action  # 0 Push cart to the left. 1 Push cart to the right.
