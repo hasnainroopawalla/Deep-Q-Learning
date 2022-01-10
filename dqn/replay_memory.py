@@ -37,6 +37,7 @@ class ReplayMemory:
         """
         self.capacity = capacity
         self.memory: List[Sample] = []
+        self.memory_insert_position = 0
 
     def __len__(self) -> int:
         """Returns the length of the replay memory.
@@ -55,9 +56,11 @@ class ReplayMemory:
         Raises:
             OverflowError: This error is raised if the maximum size of the Replay Memory is exceeded.
         """
-        if len(self.memory) > self.capacity:
-            raise OverflowError(f"Max Replay Memory size exceeded {self.capacity}")
-        self.memory.append(sample)
+        if len(self.memory) < self.capacity:
+            self.memory.append(None)  # type: ignore
+
+        self.memory[self.memory_insert_position] = sample
+        self.memory_insert_position = (self.memory_insert_position + 1) % self.capacity
 
     def sample(self, batch_size: int) -> Batch:
         """Creates a batch of random samples from the memory.
