@@ -7,7 +7,7 @@ from dqn.agents.cartpole.model import DQN
 from dqn.replay_memory import ReplayMemory, Sample
 from dqn.agents.cartpole.config import CartPoleConfig
 from dqn.agents.base_agent import BaseAgent
-from dqn.agents.cartpole.utils import preprocess
+from dqn.agents.cartpole.utils import preprocess, preprocess_sampled_batch
 
 
 class CartPoleAgent(BaseAgent):
@@ -83,18 +83,14 @@ class CartPoleAgent(BaseAgent):
         self.env.close()
 
     def optimize(self):
-        # Check if enough transitions are availabl in the replay buffer before optimizing.
+        # Check if enough transitions are available in the replay buffer before optimizing.
         if len(self.memory) < self.dqn.batch_size:
             return
 
         # Sample a batch from the replay memory.
         batch = self.memory.sample(self.dqn.batch_size)
-        obs = torch.stack(batch.obs)
-        next_obs = torch.stack(batch.next_obs)
-        actions = torch.Tensor(batch.actions).long().unsqueeze(1)
-        rewards = torch.Tensor(batch.rewards).long().unsqueeze(1)
-        dones = torch.Tensor(batch.dones).long().unsqueeze(1)
-
+        obs, next_obs, actions, rewards, dones = preprocess_sampled_batch(batch)
+       
         # TODO: Compute the current estimates of the Q-values for each state-action
         #       pair (s,a). Here, torch.gather() is useful for selecting the Q-values
         #       corresponding to the chosen actions.
