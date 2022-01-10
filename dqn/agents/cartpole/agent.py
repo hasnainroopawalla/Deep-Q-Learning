@@ -7,7 +7,7 @@ from dqn.agents.cartpole.model import DQN
 from dqn.replay_memory import ReplayMemory, Sample
 from dqn.agents.cartpole.config import CartPoleConfig
 from dqn.agents.base_agent import BaseAgent
-from dqn.agents.cartpole.utils import preprocess, preprocess_sampled_batch
+from dqn.agents.cartpole.utils import preprocess_observation, preprocess_sampled_batch
 
 
 class CartPoleAgent(BaseAgent):
@@ -35,7 +35,7 @@ class CartPoleAgent(BaseAgent):
 
         for episode in range(self.cfg.train.episodes):
             done = False
-            obs = preprocess(self.env.reset())
+            obs = preprocess_observation(self.env.reset())
             steps = 0
             while not done:
                 # Get an action from the DQN.
@@ -45,7 +45,7 @@ class CartPoleAgent(BaseAgent):
                 next_obs, reward, done, info = self.env.step(action)
 
                 # Preprocess the incoming observation.
-                next_obs = preprocess(next_obs)
+                next_obs = preprocess_observation(next_obs)
 
                 # Add the transition to the replay memory.
                 sample = Sample(obs, action, next_obs, reward, done)
@@ -57,7 +57,7 @@ class CartPoleAgent(BaseAgent):
 
                 # Update the target DQN with the candidate DQN every cfg.train.target_update_frequency steps.
                 if steps % self.cfg.train.target_update_frequency == 0:
-                    self.target_dqn.load_state_dict(self.dqn.state_dict())
+                    self._update_target_dqn()
 
                 steps += 1
                 obs = next_obs
@@ -78,7 +78,7 @@ class CartPoleAgent(BaseAgent):
                     torch.save(self.dqn, self.cfg.model_path)
 
             # Update the epsilon value.
-            self.dqn.eps_start = max(self.dqn.eps_end, 0.99 * self.dqn.eps_start)
+            self._update_epsilon()
 
         self.env.close()
 
@@ -90,9 +90,8 @@ class CartPoleAgent(BaseAgent):
         # Sample a batch from the replay memory.
         batch = self.memory.sample(self.dqn.batch_size)
         obs, next_obs, actions, rewards, dones = preprocess_sampled_batch(batch)
-       
-        # TODO: Compute the current estimates of the Q-values for each state-action
-        #       pair (s,a). Here, torch.gather() is useful for selecting the Q-values
+
+        # Compute the current estimates of the Q-values for each state-action pair (s,a). Here, torch.gather() is useful for selecting the Q-values
         #       corresponding to the chosen actions.
         q_values_expected = self.dqn(obs).gather(1, actions)
 
@@ -113,8 +112,7 @@ class CartPoleAgent(BaseAgent):
     def evaluate(self, render: bool = False) -> float:
         total_return = 0
         for i in range(self.cfg.evaluate.episodes):
-            obs = preprocess(self.env.reset()).unsqueeze(0)
-
+            obs = preprocess_observation(self.env.reset()).unsqueeze(0)
             done = False
             episode_return = 0
 
@@ -123,15 +121,19 @@ class CartPoleAgent(BaseAgent):
                     self.env.render()
 
                 action = self.dqn.act(obs)
-
                 obs, reward, done, info = self.env.step(action)
-                obs = preprocess(obs).unsqueeze(0)
+                obs = preprocess_observation(obs).unsqueeze(0)
 
                 episode_return += reward
-
             total_return += episode_return
 
         return total_return / self.cfg.evaluate.episodes
+
+    def _update_target_dqn(self):
+        self.target_dqn.load_state_dict(self.dqn.state_dict())
+
+    def _update_epsilon(self):
+        self.dqn.eps_start = max(self.dqn.eps_end, 0.99 * self.dqn.eps_start)
 
     def simulate(self) -> None:
         self.dqn = torch.load(self.cfg.model_path, map_location=self.device)

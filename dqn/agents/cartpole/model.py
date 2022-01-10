@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 import torch.nn as nn
 import numpy as np
 
@@ -24,20 +25,29 @@ class DQN(nn.Module):
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 
-    def forward(self, x):
-        """Runs the forward pass of the NN depending on architecture."""
+    def forward(self, x: Tensor) -> Tensor:
+        """Computes a forward pass of the network.
+
+        Args:
+            x (Tensor): The input to the network.
+
+        Returns:
+            Tensor: The output of the final layer of the network.
+        """
         x = self.fc1(x)
         x = self.relu(x)
         x = self.fc2(x)
         return x
 
-    def act(self, observation):
-        """Selects an action with an epsilon-greedy exploration strategy."""
-        # TODO: Implement action selection using the Deep Q-network. This function
-        #       takes an observation tensor and should return a tensor of actions.
-        #       For example, if the state dimension is 4 and the batch size is 32,
-        #       the input would be a [32, 4] tensor and the output a [32, 1] tensor.
-        # TODO: Implement epsilon-greedy exploration.
+    def act(self, observation: Tensor) -> int:
+        """Selects an action with an epsilon-greedy exploration strategy.
+
+        Args:
+            observation (Tensor): The current observation.
+
+        Returns:
+            int: The action taken by the DQN based on the observation.
+        """
         prediction = self(observation.squeeze())
         if np.random.uniform(low=0.0, high=1.0) <= self.eps_start:
             action = np.random.randint(low=0.0, high=self.num_actions)  # Random action
