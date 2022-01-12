@@ -30,7 +30,7 @@ $ python3 -m dqn --agent <agent_name> --mode <train/simulate>
 ### CartPole-v0 (`--agent cartpole`)
 More information [here](https://gym.openai.com/envs/CartPole-v0/).
 
-The following simulation are 3 episodes of a trained _CartPole_ agent receiving a mean reward of `200.0` after training for 1000 episodes.
+The following simulation is 3 episodes of a trained _CartPole_ agent receiving a mean reward of `200.0` after training for 1000 episodes.
 
 <p align="center">
 <img src="static/cartpole.gif" alt="CartPole-V0" width="500"/>
