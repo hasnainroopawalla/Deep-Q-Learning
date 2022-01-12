@@ -17,7 +17,7 @@ $ pip install -r requirements.txt
 ```
 ### Basic usage:
 ```
-$ python3 -m dqn --agent <agent_name> --mode <train/simulate>
+$ python -m dqn --agent <agent_name> --mode <train/simulate>
 ```
 
 #### Parameters
@@ -38,12 +38,12 @@ The following simulation is 3 episodes of a trained _CartPole_ agent receiving a
 
 #### To Train:
 ```
-$ python3 -m dqn --agent cartpole --mode train
+$ python -m dqn --agent cartpole --mode train
 ```
 
 #### To Simulate:
 ```
-$ python3 -m dqn --agent cartpole --mode simulate
+$ python -m dqn --agent cartpole --mode simulate
 ```
 
 ### Pong-V0 (`--agent pong`)
