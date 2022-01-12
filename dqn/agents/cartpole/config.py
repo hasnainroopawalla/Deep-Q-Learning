@@ -6,6 +6,7 @@ import os
 class TrainParams:
     """Parameters used for training the agent.
     """
+
     memory_size: int = 50000
     episodes: int = 1000
     batch_size: int = 32
@@ -23,6 +24,7 @@ class TrainParams:
 class EvaluateParams:
     """Parameters used for evaluating the agent.
     """
+
     frequency: int = 25
     episodes: int = 5
 
@@ -31,6 +33,7 @@ class EvaluateParams:
 class CartPoleConfig:
     """Configuration for the CartPole agent.
     """
+
     train: TrainParams = TrainParams()
     evaluate: EvaluateParams = EvaluateParams()
     env: str = "CartPole-v0"

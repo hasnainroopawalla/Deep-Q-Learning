@@ -43,7 +43,7 @@ class DQN(nn.Module):
         """Selects an action with an epsilon-greedy exploration strategy.
         0: Push cart to the left.
         1: Push cart to the right.
-        
+
         Args:
             observation (Tensor): The current observation.
 
@@ -53,7 +53,7 @@ class DQN(nn.Module):
         if np.random.uniform(low=0.0, high=1.0) <= self.eps_start:
             # Random action.
             action = int(np.random.randint(low=0, high=self.num_actions))
-        else:        
+        else:
             prediction = self(observation.squeeze())
             action = int(torch.argmax(prediction).item())
-        return action 
+        return action
