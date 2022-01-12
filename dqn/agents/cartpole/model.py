@@ -5,17 +5,18 @@ import numpy as np
 
 from dqn.agents.cartpole.config import CartPoleConfig
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 class DQN(nn.Module):
+    """The Deep Q-Learning Network.
+    """
+
     def __init__(self, cfg: CartPoleConfig):
         super(DQN, self).__init__()
 
         self.batch_size = cfg.train.batch_size
         self.gamma = cfg.train.gamma
-        self.eps_start = cfg.train.eps_start
-        self.eps_end = cfg.train.eps_end
+        self.epsilon = cfg.train.epsilon
+        self.epsilon_end = cfg.train.epsilon_end
         self.anneal_length = cfg.train.anneal_length
         self.num_actions = cfg.train.num_actions
 
@@ -50,7 +51,7 @@ class DQN(nn.Module):
         Returns:
             int: The action taken by the DQN based on the observation.
         """
-        if np.random.uniform(low=0.0, high=1.0) <= self.eps_start:
+        if np.random.uniform(low=0.0, high=1.0) <= self.epsilon:
             # Random action.
             action = int(np.random.randint(low=0, high=self.num_actions))
         else:

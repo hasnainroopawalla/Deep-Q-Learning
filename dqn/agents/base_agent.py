@@ -12,8 +12,11 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    def optimize(self) -> None:
+    def optimize(self) -> float:
         """Samples a batch from the replay buffer and optimizes the Q-network.
+
+        Returns:
+            float: The loss of the DQN.
         """
         pass
 

@@ -14,8 +14,8 @@ class TrainParams:
     frequency: int = 1
     gamma: float = 0.95
     lr: float = 1e-4
-    eps_start: float = 0.1
-    eps_end: float = 0.05
+    epsilon: float = 0.1
+    epsilon_end: float = 0.05
     anneal_length: int = 10 ** 4
     num_actions: int = 2
 

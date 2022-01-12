@@ -78,14 +78,16 @@ class CartPoleAgent(BaseAgent):
                     torch.save(self.dqn, self.cfg.model_path)
 
             # Update the epsilon value.
-            self._update_epsilon()
+            self.dqn.epsilon = self._update_epsilon(
+                self.dqn.epsilon, self.dqn.epsilon_end
+            )
 
         self.env.close()
 
-    def optimize(self):
+    def optimize(self) -> float:
         # Check if enough transitions are available in the replay buffer before optimizing.
         if len(self.memory) < self.dqn.batch_size:
-            return
+            return float("inf")
 
         # Sample a batch from the replay memory.
         batch = self.memory.sample(self.dqn.batch_size)
@@ -128,18 +130,26 @@ class CartPoleAgent(BaseAgent):
 
         return total_return / self.cfg.evaluate.episodes
 
-    def _update_target_dqn(self):
-        """Updates the target DQN weights with the training DQN weights.
-        """
-        self.target_dqn.load_state_dict(self.dqn.state_dict())
-
-    def _update_epsilon(self):
-        """Updates the epsilon value as training progresses to reduce exploration.
-        """
-        self.dqn.eps_start = max(self.dqn.eps_end, 0.99 * self.dqn.eps_start)
-
     def simulate(self) -> None:
         self.dqn = torch.load(self.cfg.model_path, map_location=self.device)
         self.cfg.evaluate.episodes = 3
         mean_return = self.evaluate(render=True)
         print(f"Simulation Complete. Mean Return: {mean_return}")
+
+    def _update_target_dqn(self) -> None:
+        """Updates the target DQN weights with the training DQN weights.
+        """
+        self.target_dqn.load_state_dict(self.dqn.state_dict())
+
+    @staticmethod
+    def _update_epsilon(epsilon: float, epsilon_end: float) -> float:
+        """Updates the epsilon value as training progresses to reduce exploration.
+
+        Args:
+            epsilon (float): The epsilon start value.
+            epsilon_end (float): The epsilon end value.
+
+        Returns:
+            float: The updated epsilon value.
+        """
+        return max(epsilon_end, 0.99 * epsilon)
