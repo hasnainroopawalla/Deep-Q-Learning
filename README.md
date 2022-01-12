@@ -1,2 +1,9 @@
+# Deep Q-Learning (Reinforcement Learning)
 
-<video src='cartpole.mov' width=180/> 
+
+## Agents
+
+### CartPole-v0
+![Screenshot](static/cartpole.gif)
+
+### Pong-V0 (in-progress)
