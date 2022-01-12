@@ -15,6 +15,14 @@ def preprocess_observation(obs):
 def preprocess_sampled_batch(
     batch: Batch
 ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
+    """Pre-processes a batch of samples from the memory.
+
+    Args:
+        batch (Batch): A batch of raw samples.
+
+    Returns:
+        Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]: A batch of pre-processed samples;
+    """
     obs = torch.stack(batch.obs)
     next_obs = torch.stack(batch.next_obs)
     actions = torch.Tensor(batch.actions).long().unsqueeze(1)

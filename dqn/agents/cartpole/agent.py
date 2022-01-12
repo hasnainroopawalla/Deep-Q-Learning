@@ -91,8 +91,7 @@ class CartPoleAgent(BaseAgent):
         batch = self.memory.sample(self.dqn.batch_size)
         obs, next_obs, actions, rewards, dones = preprocess_sampled_batch(batch)
 
-        # Compute the current estimates of the Q-values for each state-action pair (s,a). Here, torch.gather() is useful for selecting the Q-values
-        #       corresponding to the chosen actions.
+        # Compute the current estimates of the Q-values for each state-action pair (s,a). 
         q_values_expected = self.dqn(obs).gather(1, actions)
 
         next_q_values = self.target_dqn(next_obs).detach().max(1)[0].unsqueeze(1)
@@ -130,13 +129,17 @@ class CartPoleAgent(BaseAgent):
         return total_return / self.cfg.evaluate.episodes
 
     def _update_target_dqn(self):
+        """Updates the target DQN weights with the training DQN weights.
+        """
         self.target_dqn.load_state_dict(self.dqn.state_dict())
 
     def _update_epsilon(self):
+        """Updates the epsilon value as training progresses to reduce exploration. 
+        """
         self.dqn.eps_start = max(self.dqn.eps_end, 0.99 * self.dqn.eps_start)
 
     def simulate(self) -> None:
         self.dqn = torch.load(self.cfg.model_path, map_location=self.device)
-        self.cfg.evaluate.episodes = 1
+        self.cfg.evaluate.episodes = 3
         mean_return = self.evaluate(render=True)
         print(f"Simulation Complete. Mean Return: {mean_return}")
